@@ -2,6 +2,14 @@
 ob_start();
 date_default_timezone_set('Asia/Damascus');
 
+error_reporting(0);
+ini_set('display_errors', 0);
+
+// دالة سحرية لمنع الـ Fatal Errors في الدوال المشهورة
+function safe_in_array($needle, $haystack) {
+    return is_array($haystack) ? in_array($needle, $haystack) : false;
+}
+
 // ========== بيانات البوت الأساسية ==========
 $tk = "8518091512:AAG4t1yXi2h-YDSE8Ktcmozpy5t7xDOq07E";              // ضع توكن البوت هنا
 $yhya_id = "7807482327";                  // ضع ايديك (المطور الأساسي) هنا
