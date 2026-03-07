@@ -137,11 +137,32 @@ $cmssg = explode("\n",$cmg);
 $cmsg = count($cmssg);
 
 if ($tc == 'private'){  
-@$user = json_decode(file_get_contents("data/user.json"),true);
-if(!in_array($from_id, $user["userlist"])) {
-$user["userlist"][]="$from_id";
-$user = json_encode($user,true);
-file_put_contents("data/user.json",$user);
+    @$user = json_decode(file_get_contents("data/user.json"),true);
+    if (isset($user["userlist"]) && is_array($user["userlist"])) {
+        if (!in_array($from_id, $user["userlist"])) {
+            $user["userlist"][] = "$from_id";
+            $user = json_encode($user,true);
+            file_put_contents("data/user.json",$user);
+        }
+    } else {
+        // لو الملف مش موجود أو مش مصفوفة، نعمل مصفوفة جديدة
+        $user = ["userlist" => [$from_id], "grouplist" => []];
+        file_put_contents("data/user.json", json_encode($user));
+    }
+}
+elseif ($tc == 'group' | $tc == 'supergroup'){  
+    @$user = json_decode(file_get_contents("data/user.json"),true);
+    if (isset($user["grouplist"]) && is_array($user["grouplist"])) {
+        if (!in_array($chat_id, $user["grouplist"])) {
+            $user["grouplist"][] = "$chat_id";
+            $user = json_encode($user,true);
+            file_put_contents("data/user.json",$user);
+        }
+    } else {
+        // لو الملف مش موجود أو مش مصفوفة، نعمل مصفوفة جديدة
+        $user = ["userlist" => [], "grouplist" => [$chat_id]];
+        file_put_contents("data/user.json", json_encode($user));
+    }
 }
 }
 elseif ($tc == 'group' | $tc == 'supergroup'){  
