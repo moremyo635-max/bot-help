@@ -6452,7 +6452,19 @@ if ($tc == 'group' | $tc == 'supergroup'){
 bot('sendMessage',['chat_id'=>$chat_id, 'text'=>$namere[$rename],'parse_mode'=>"MARKDOWN",'reply_to_message_id'=>$message_id,]);}}
 
 $abuehab = array("هلا قلبي معك الميزك","تفضل حبيبي انا النيزك🌝💞","يمك حياتي امرني 🥺💞","شتريد كل شويه نيزك","يابه نجب كل شويه نيزك لاتضج");
-$ehab = array_rand($proxre, 1);
+// التأكد من وجود الملف وقراءته، وإذا لم يوجد يتم إنشاؤه فارغاً
+$file_path = "data/proxies.txt"; // تأكد من اسم الملف الصحيح من سورس كودك
+if(!file_exists($file_path)){
+    file_put_contents($file_path, ""); 
+}
+$proxre = explode("\n", file_get_contents($file_path));
+
+// تأمين دالة العشوائية عشان البوت ما يوقفش لو الملف لسه فاضي
+if(!empty($proxre) && $proxre[0] != ""){
+    $rand = array_rand($proxre);
+} else {
+    $rand = null; // هنا البوت هيفهم إن القائمة فاضية فمش هيعمل Error
+};
 if($text == "نيزك" and $namebot == NULL){
 if ($tc == 'group' | $tc == 'supergroup'){
 bot('sendMessage',['chat_id'=>$chat_id, 'text'=>$abuehab[$ehab],'parse_mode'=>"MARKDOWN",'reply_to_message_id'=>$message_id,]);}}
