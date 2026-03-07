@@ -1,4 +1,24 @@
 <?php
+// --- كود التلقيم الذاتي (العلاج الجذري) ---
+$required_dirs = ['data', 'statistics', 'msiss'];
+foreach ($required_dirs as $dir) {
+    if (!is_dir($dir)) { mkdir($dir, 0777, true); }
+}
+
+// التأكد من وجود ملفات الـ JSON الأساسية لمنع الـ Fatal Error في in_array
+$essential_files = [
+    'data/user.json' => '{"userlist":[], "grouplist":[]}',
+    'data/sticker.json' => '{}',
+    'data/proxies.txt' => '',
+    'data/set.txt' => ''
+];
+
+foreach ($essential_files as $path => $content) {
+    if (!file_exists($path)) {
+        file_put_contents($path, $content);
+    }
+}
+// --- نهاية كود التلقيم الذاتي ---
 ob_start();
 date_default_timezone_set('Asia/Damascus');
 
