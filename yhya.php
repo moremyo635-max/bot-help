@@ -206,25 +206,26 @@ $re_id = $update->message->reply_to_message->from->id;
 $DRPP = "$knditk";
 $ckl = "@$devchink"; 
 $ch2 = file_get_contents("https://api.telegram.org/bot$DRPP/getChatMember?chat_id=".$ckl."&user_id=".$from_id);
-$getch2 = json_decode(file_get_contents("http://api.telegram.org/bot$DRPP/getChat?chat_id=".$ckl))->result;
+$getch2 = json_decode(file_get_contents("https://api.telegram.org/bot$DRPP/getChat?chat_id=".$ckl))->result;
 $Namech2 = $getch2->title;
 $getch2li = str_replace("@","",$ckl);
+
 if($text == "/start" or $text == "text" or $text == "/Del" or $text == "تعطيل" or $text == "تفعيل" or $text == "ايدي" or $text == "رفع ادمن" or $text == "رفع مميز" or $text == "م1" or $text == "م2" or $text == "م3" or $text == "م4" or $text == "م5" or $text == "قفل الصور" or $text == "تنزيل مميز" or $text == "تنزيل ادمن" or $text == "قفل الفيديو" or $text == "فتح الفيديو" or $text == "تفعيل الايدي" or $text == "تعطيل الايدي" or $text == "فتح الروابط"  or $text == "الادمنية" || $text == "المميزين" || $text == "الادمنيه" || $text == "قفل الروابط" or $text == "قفل التوجيه" or $text == "فتح التوجيه" or $text == "تفعيل الالعاب" or $text == "تعطيل الالعاب" or $text == "تفعيل الرابط" or $text == "تعطيل الرابط" or $text == "تفعيل جلب الصور" or $text == "تعطيل جلب الصور" or $text == "تفعيل التصميم"  or $text == "تعطيل التصميم" || $text == "تفعيل الزخرفه" || $text == "تعطيل الزخرفه" || $text == "تفعيل الاشتراك الاجباري" or $text == "قفل المعرفات" or $text == "فتح المعرفات" or $text == "قفل البوتات" or $text == "فتح البوتات" or $text == "قفل المتحركه" or $text == "الاوامر" or $text == "قفل الاشعارات" or $text == "قفل البوتات بالطرد" or $text == "وضع رابط"  or $text == "حذف الرابط" || $text == "صنع رابط" || $text == "انشاء رابط" || $text == "تفعيل الرابط" or $text == "تعطيل الرابط" or $text == "قفل الدردشة" or $text == "فتح الدردشة" or $text == "قفل الدردشه" or $text == "فتح الدردشه" or $text == "كتم" or $text == "حظر" or $text == "طرد" or $text == "تقييد" or $text == "الغاء حظر" or $text == "الغاء كتم" or $text == "الغاء تقييد" or $text == "وضع ترحيب" or $text == "وضع توديع" or $text == "حذف التوديع" or $text == "حذف الترحيب" or $text =="اضف رد عام" or $text == "اضف رد عام" or $text == "مسح رد عام" or $text == "حذف رد عام" or $text == "مسح الردود العامه" or $text =="الردود العامه" or $text == "قائمة الردود العامه" or $text == "رفع مالك" or $text == "رفع منشئ اساسي" or $text == "تنزيل مالك" or $text == "تنزيل منشئ اساسي" or $text == "تنزيل منشئ" or $text == "غنيلي" or $text == "موال" or $text =="تحويل" or $text == "واسي" or $text == "واسيها" or preg_match("/زخرف /", $text) or preg_match("/ترجم /",$text) or preg_match("/بحث /",$text) or preg_match("/برج /",$text) or preg_match("/معنى /",$text) or preg_match("/العمر /",$text)){
-if($message && (strpos($ch2,'"status":"left"') or strpos($ch2,'"Bad Request: USER_ID_INVALID"') or strpos($ch2,'"status":"kicked"'))!== false){
+
+if($message && (strpos($ch2,'"status":"left"') !== false or strpos($ch2,'"Bad Request: USER_ID_INVALID"') !== false or strpos($ch2,'"status":"kicked"') !== false)){
 bot('sendMessage', [
 'chat_id'=>$chat_id,
-'text'=>'*
+'text'=>"
 | عذرا عزيزي ⚠️.
 | لا يمكنك استخدام البوت 🔰.
-| الا بعد الاشتراك بقناة 🚫.
- ىالقناة : '.$ckl.' ✅*
-','parse_mode'=>'markdown',
+| عليك الاشتراك في القناة أولا 🔘.
+| $ckl 💎.
+",
 'reply_to_message_id'=>$message->message_id,
-'reply_markup'=>json_encode([
-'inline_keyboard'=>[
-[['text'=>$Namech2,'url'=>"https://t.me/$getch2li"]],
-]])
-]);return false;}}
+]);
+return false;
+}
+}
 
 $setch = file_get_contents("data/setch.json");
 $setchannel = file_get_contents("data/setchannel.json");
