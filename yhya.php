@@ -145,7 +145,6 @@ if ($tc == 'private'){
             file_put_contents("data/user.json",$user);
         }
     } else {
-        // لو الملف مش موجود أو مش مصفوفة، نعمل مصفوفة جديدة
         $user = ["userlist" => [$from_id], "grouplist" => []];
         file_put_contents("data/user.json", json_encode($user));
     }
@@ -159,22 +158,14 @@ elseif ($tc == 'group' | $tc == 'supergroup'){
             file_put_contents("data/user.json",$user);
         }
     } else {
-        // لو الملف مش موجود أو مش مصفوفة، نعمل مصفوفة جديدة
         $user = ["userlist" => [], "grouplist" => [$chat_id]];
         file_put_contents("data/user.json", json_encode($user));
     }
 }
-}
-elseif ($tc == 'group' | $tc == 'supergroup'){  
-@$user = json_decode(file_get_contents("data/user.json"),true);
-if(!in_array($chat_id, $user["grouplist"])) {
-$user["grouplist"][]="$chat_id";
-$user = json_encode($user,true);
-file_put_contents("data/user.json",$user);
-}
-}
+
 $re = $update->message->reply_to_message;
 $re_id = $update->message->reply_to_message->from->id;
+############
 ############
 
 
