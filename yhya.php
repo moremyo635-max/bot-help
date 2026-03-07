@@ -1,30 +1,49 @@
 <?php
 ob_start();
 date_default_timezone_set('Asia/Damascus');
+
+// ========== بيانات البوت الأساسية ==========
+$tk = "8518091512:AAG4t1yXi2h-YDSE8Ktcmozpy5t7xDOq07E";              // ضع توكن البوت هنا
+$yhya_id = "7807482327";                  // ضع ايديك (المطور الأساسي) هنا
+$iidd = "8518091512";                 // ضع ايدي البوت هنا
+
+// ========== جلب معلومات البوت من API ==========
 $url_info = file_get_contents("https://api.telegram.org/bot$tk/getMe");
 $json_info = json_decode($url_info);
-$user = $json_info->result->username;
-$bot_id = $json_info->result->id;
-$KKYKKN = json_decode(file_get_contents("http://api.telegram.org/bot$tk/getChat?chat_id=$yhya_id"))->result->username;
-$knditk = "$tk";
-$buy = "$KKYKKN";
-$userbot ="$iidd";
-$sudo = "$yhya_id";
-$admin = "$sudo";
-$idBot = "$iidd";
-$admmm = $sudo;
-$ADMIN = $sudo;
-$Dev = array("$sudo");
-$Devd = "$yhya_id";
-$tbbots = $KKYKKN;
-$Dev = array($yhya_id);
-$eri = array("5422153027", "5422153027" );
-$DevUser = "@$buy"; // 
-$Devch = "@$buy"; //  
-$Userbot = "$iidd"; // 
-$chsource = "@$devchink";
+$user = $json_info->result->username;          // يوزر البوت
+$bot_id = $json_info->result->id;              // ايدي البوت (تأكيد)
+
+// ========== جلب معلومات المطور ==========
+$dev_info = json_decode(file_get_contents("https://api.telegram.org/bot$tk/getChat?chat_id=$yhya_id"));
+$KKYKKN = $dev_info->result->username;         // يوزر المطور
+$knditk = "$tk";                                // التوكن
+$buy = "$KKYKKN";                               // يوزر المطور
+$userbot = "$iidd";                             // ايدي البوت
+$sudo = "$yhya_id";                             // ايديك
+$admin = "$sudo";                               // ايديك (للأمان)
+$idBot = "$iidd";                               // ايدي البوت
+$admmm = $sudo;                                 // ايديك
+$ADMIN = $sudo;                                 // ايديك
+$Devd = "$yhya_id";                             // ايديك
+$tbbots = $KKYKKN;                              // يوزر المطور
+
+// ========== مصفوفات المطورين ==========
+$Dev = array($yhya_id);                         // المطور الأساسي
+
+$eri = array(                                    // المطورين الإضافيين
+    "5422153027",                                 // هات أول ايدي
+    "5422153027"                                  // هات تاني ايدي (لو في)
+);
+
+// ========== المتغيرات المساعدة ==========
+$DevUser = "@$buy";                              // يوزر المطور مع @
+$Devch = "@$buy";                                 // نفس الحاجة
+$Userbot = "$iidd";                               // ايدي البوت
+$chsource = "@Z_4_Z_D";                           // هنا صلحت المشكلة (كانت $devchink)
+
+// ========== إعدادات API ==========
 $API_KEY = $tk;
-define('API_KEY',$tk);
+define('API_KEY', $tk);
 function bot($method,$datas=[]){
     $yhya = http_build_query($datas);
         $url = "https://api.telegram.org/bot".API_KEY."/".$method."?$yhya";
