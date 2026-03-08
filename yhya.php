@@ -2,6 +2,14 @@
 ob_start();
 date_default_timezone_set('Asia/Damascus');
 $config = include('config.php');
+$essential_files = [
+    'link.json' => '{}',
+    'ok.json' => '{}',
+    'stting.txt' => 'on',
+    'data/tiger.json' => '{}',
+    'data/user.json' => '{"userlist":[],"grouplist":[]}',
+    'data/proxies.txt' => ''
+];
 $tk = $config['tk'];             // التوكن
 $yhya_id = $config['yhya_id'];   // ايديك
 $iidd = $config['iidd'];         // ايدي البوت
@@ -6445,7 +6453,7 @@ if ($tc == 'group' | $tc == 'supergroup'){
 bot('sendMessage',['chat_id'=>$chat_id, 'text'=>$namere[$rename],'parse_mode'=>"MARKDOWN",'reply_to_message_id'=>$message_id,]);}}
 
 $abuehab = array("هلا قلبي معك الميزك","تفضل حبيبي انا النيزك🌝💞","يمك حياتي امرني 🥺💞","شتريد كل شويه نيزك","يابه نجب كل شويه نيزك لاتضج");
-$ehab = array_rand($proxre, 1);
+$ehab = array_rand($abuehab, 1);
 if($text == "نيزك" and $namebot == NULL){
 if ($tc == 'group' | $tc == 'supergroup'){
 bot('sendMessage',['chat_id'=>$chat_id, 'text'=>$abuehab[$ehab],'parse_mode'=>"MARKDOWN",'reply_to_message_id'=>$message_id,]);}}
