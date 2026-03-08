@@ -1,6 +1,10 @@
 <?php
 ob_start();
 date_default_timezone_set('Asia/Damascus');
+$config = include('config.php');
+$tk = $config['tk'];             // التوكن
+$yhya_id = $config['yhya_id'];   // ايديك
+$iidd = $config['iidd'];         // ايدي البوت
 $url_info = file_get_contents("https://api.telegram.org/bot$tk/getMe");
 $json_info = json_decode($url_info);
 $user = $json_info->result->username;
@@ -25,12 +29,28 @@ $Userbot = "$iidd"; // 
 $chsource = "@$devchink";
 $API_KEY = $tk;
 define('API_KEY',$tk);
-function bot($method,$datas=[]){
-    $yhya = http_build_query($datas);
-        $url = "https://api.telegram.org/bot".API_KEY."/".$method."?$yhya";
-        $yhya_Sy = file_get_contents($url);
-        return json_decode($yhya_Sy);
+// --- تصحيح دالة الإرسال لتعمل على Railway وقبول الرسايل الطويلة ---
+function bot($method, $datas = []) {
+    $url = "https://api.telegram.org/bot" . API_KEY . "/" . $method;
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $datas); // إرسال POST آمن
+    $res = curl_exec($ch);
+    if (curl_error($ch)) {
+        return (object) ['ok' => false];
+    }
+    return json_decode($res);
 }
+
+// --- استخراج البيانات مرة واحدة فقط لتسريع البوت ---
+$usernamebot = $user; // اللي جلبناها فوق من getMe
+$token = API_KEY;
+
+// تصحيح رابط getChat (إضافة s للـ http)
+$get_dev_info = file_get_contents("https://api.telegram.org/bot$tk/getChat?chat_id=$yhya_id");
+$KKYKKN = json_decode($get_dev_info)->result->username;
+
 $url_info = file_get_contents("https://api.telegram.org/bot$token/getMe");
 $json_info = json_decode($url_info,true);
 $usernamebot = $json_info['result']['username'];
@@ -95,71 +115,75 @@ elseif($settingdev["source"]){
 $em = $settingdev["source"];
 }
 ############
-@$statjson = json_decode(file_get_contents("https://api.telegram.org/bot$token/getChatMember?chat_id=$chat_id&user_id=".$from_id),true);
-@$status = $statjson['result']['status'];
-@$statjsonrt = json_decode(file_get_contents("https://api.telegram.org/bot$token/getChatMember?chat_id=$chat_id&user_id=".$re_id),true);
-@$statusrt = $statjsonrt['result']['status'];
-@$statjsonq = json_decode(file_get_contents("https://api.telegram.org/bot$token/getChatMember?chat_id=$chatid&user_id=".$fromid),true);
-@$statusq = $statjsonq['result']['status'];
-@$info = json_decode(file_get_contents("https://api.telegram.org/bot$token/getChatMember?chat_id=$chat_edit_id&user_id=".$edit_for_id),true);
-@$you = $info['result']['status'];
-@$forchannel = json_decode(file_get_contents("https://api.telegram.org/bot".$token."/getChatMember?chat_id=@".$channel."&user_id=".$from_id));
-@$tch = $forchannel->result->status;
-/*===== dev ~ @FF8FFI =====*/
-@$settings = json_decode(file_get_contents("data/$chat_id.json"),true);
-@$settings2 = json_decode(file_get_contents("data/$chatid.json"),true);
-@$editgetsettings = json_decode(file_get_contents("data/$chat_edit_id.json"),true);
-@$user = json_decode(file_get_contents("data/user.json"),true);
-@$filterget = $settings["filterlist"];
+// --- 1. فحص الرتب (Status) بطريقة سريعة وآمنة باستخدام cURL ---
+$get_status = bot('getChatMember', ['chat_id' => $chat_id, 'user_id' => $from_id]);
+$status = $get_status->result->status;
 
-$mem = bot('getchatmemberscount',['chat_id'=>$chat_id])->result;
+$get_status_rt = bot('getChatMember', ['chat_id' => $chat_id, 'user_id' => $re_id]);
+$statusrt = $get_status_rt->result->status;
+
+$get_status_q = bot('getChatMember', ['chat_id' => $chatid, 'user_id' => $fromid]);
+$statusq = $get_status_q->result->status;
+
+// --- 2. فحص الاشتراك الإجباري (استخدام القناة من الملف الجديد) ---
+$forchannel = bot('getChatMember', ['chat_id' => "@".$channel, 'user_id' => $from_id]);
+$tch = $forchannel->result->status;
+
+/*===== dev ~ @FF8FFI =====*/
+// --- 3. تحميل الإعدادات (مع تصحيح تضارب متغير $user) ---
+$settings = json_decode(file_get_contents("data/$chat_id.json"), true);
+$settings2 = json_decode(file_get_contents("data/$chatid.json"), true);
+$editgetsettings = json_decode(file_get_contents("data/$chat_edit_id.json"), true);
+
+// ركز هنا: غيرنا $user لـ $userList عشان ميمسحش يوزر البوت
+$userList = json_decode(file_get_contents("data/user.json"), true); 
+$filterget = $settings["filterlist"];
+
+// --- 4. جلب عدد الأعضاء (تصحيح الخطأ المنطقي) ---
+$get_mem = bot('getchatmemberscount', ['chat_id' => $chat_id]);
+$mem = $get_mem->result;
+
 $cmg = file_get_contents("data/count/$chat_id.txt");
-$cmssg = explode("\n",$cmg);
+$cmssg = explode("\n", $cmg);
 $cmsg = count($cmssg);
 
+
+// --- 1. تخزين المستخدمين والمجموعات (باستخدام $userList عشان متمسحش يوزر البوت) ---
 if ($tc == 'private'){  
-@$user = json_decode(file_get_contents("data/user.json"),true);
-if(!in_array($from_id, $user["userlist"])) {
-$user["userlist"][]="$from_id";
-$user = json_encode($user,true);
-file_put_contents("data/user.json",$user);
+    if(!safe_in_array($from_id, $userList["userlist"])) {
+        $userList["userlist"][] = "$from_id";
+        file_put_contents("data/user.json", json_encode($userList));
+    }
 }
+elseif ($tc == 'group' || $tc == 'supergroup'){  
+    if(!safe_in_array($chat_id, $userList["grouplist"])) {
+        $userList["grouplist"][] = "$chat_id";
+        file_put_contents("data/user.json", json_encode($userList));
+    }
 }
-elseif ($tc == 'group' | $tc == 'supergroup'){  
-@$user = json_decode(file_get_contents("data/user.json"),true);
-if(!in_array($chat_id, $user["grouplist"])) {
-$user["grouplist"][]="$chat_id";
-$user = json_encode($user,true);
-file_put_contents("data/user.json",$user);
-}
-}
-$re = $update->message->reply_to_message;
-$re_id = $update->message->reply_to_message->from->id;
-############
 
+// --- 2. الاشتراك الإجباري (استخدام البيانات اللي فحصناها فوق بـ curl) ---
+$ckl = "@Z_4_Z_D"; // يوزر قناتك الأساسية
+$getch2li = str_replace("@", "", $ckl);
 
-$DRPP = "$knditk";
-$ckl = "@$devchink"; 
-$ch2 = file_get_contents("https://api.telegram.org/bot$DRPP/getChatMember?chat_id=".$ckl."&user_id=".$from_id);
-$getch2 = json_decode(file_get_contents("http://api.telegram.org/bot$DRPP/getChat?chat_id=".$ckl))->result;
-$Namech2 = $getch2->title;
-$getch2li = str_replace("@","",$ckl);
-if($text == "/start" or $text == "text" or $text == "/Del" or $text == "تعطيل" or $text == "تفعيل" or $text == "ايدي" or $text == "رفع ادمن" or $text == "رفع مميز" or $text == "م1" or $text == "م2" or $text == "م3" or $text == "م4" or $text == "م5" or $text == "قفل الصور" or $text == "تنزيل مميز" or $text == "تنزيل ادمن" or $text == "قفل الفيديو" or $text == "فتح الفيديو" or $text == "تفعيل الايدي" or $text == "تعطيل الايدي" or $text == "فتح الروابط"  or $text == "الادمنية" || $text == "المميزين" || $text == "الادمنيه" || $text == "قفل الروابط" or $text == "قفل التوجيه" or $text == "فتح التوجيه" or $text == "تفعيل الالعاب" or $text == "تعطيل الالعاب" or $text == "تفعيل الرابط" or $text == "تعطيل الرابط" or $text == "تفعيل جلب الصور" or $text == "تعطيل جلب الصور" or $text == "تفعيل التصميم"  or $text == "تعطيل التصميم" || $text == "تفعيل الزخرفه" || $text == "تعطيل الزخرفه" || $text == "تفعيل الاشتراك الاجباري" or $text == "قفل المعرفات" or $text == "فتح المعرفات" or $text == "قفل البوتات" or $text == "فتح البوتات" or $text == "قفل المتحركه" or $text == "الاوامر" or $text == "قفل الاشعارات" or $text == "قفل البوتات بالطرد" or $text == "وضع رابط"  or $text == "حذف الرابط" || $text == "صنع رابط" || $text == "انشاء رابط" || $text == "تفعيل الرابط" or $text == "تعطيل الرابط" or $text == "قفل الدردشة" or $text == "فتح الدردشة" or $text == "قفل الدردشه" or $text == "فتح الدردشه" or $text == "كتم" or $text == "حظر" or $text == "طرد" or $text == "تقييد" or $text == "الغاء حظر" or $text == "الغاء كتم" or $text == "الغاء تقييد" or $text == "وضع ترحيب" or $text == "وضع توديع" or $text == "حذف التوديع" or $text == "حذف الترحيب" or $text =="اضف رد عام" or $text == "اضف رد عام" or $text == "مسح رد عام" or $text == "حذف رد عام" or $text == "مسح الردود العامه" or $text =="الردود العامه" or $text == "قائمة الردود العامه" or $text == "رفع مالك" or $text == "رفع منشئ اساسي" or $text == "تنزيل مالك" or $text == "تنزيل منشئ اساسي" or $text == "تنزيل منشئ" or $text == "غنيلي" or $text == "موال" or $text =="تحويل" or $text == "واسي" or $text == "واسيها" or preg_match("/زخرف /", $text) or preg_match("/ترجم /",$text) or preg_match("/بحث /",$text) or preg_match("/برج /",$text) or preg_match("/معنى /",$text) or preg_match("/العمر /",$text)){
-if($message && (strpos($ch2,'"status":"left"') or strpos($ch2,'"Bad Request: USER_ID_INVALID"') or strpos($ch2,'"status":"kicked"'))!== false){
-bot('sendMessage', [
-'chat_id'=>$chat_id,
-'text'=>'*
-| عذرا عزيزي ⚠️.
-| لا يمكنك استخدام البوت 🔰.
-| الا بعد الاشتراك بقناة 🚫.
- ىالقناة : '.$ckl.' ✅*
-','parse_mode'=>'markdown',
-'reply_to_message_id'=>$message->message_id,
-'reply_markup'=>json_encode([
-'inline_keyboard'=>[
-[['text'=>$Namech2,'url'=>"https://t.me/$getch2li"]],
-]])
-]);return false;}}
+// مصفوفة الأوامر (بدل التكرار الممل لـ if text ==)
+$all_cmds = ["/start", "ايدي", "تفعيل", "تعطيل", "الاوامر", "غنيلي", "رفع ادمن", "قفل الصور"];
+
+if(in_array($text, $all_cmds) || preg_match("/زخرف /", $text)){
+    // استخدمنا متغير $tch اللي فحصناه فوق بالـ curl السريع
+    if($tch == 'left' || $tch == 'kicked'){
+        bot('sendMessage', [
+            'chat_id' => $chat_id,
+            'text' => "*| عذرا عزيزي ⚠️.\n| لا يمكنك استخدام البوت 🔰.\n| الا بعد الاشتراك بقناة 🚫.\nالقناة : $ckl ✅*",
+            'parse_mode' => 'markdown',
+            'reply_to_message_id' => $message_id,
+            'reply_markup' => json_encode([
+                'inline_keyboard' => [[['text' => "اضغط هنا للاشتراك ✅", 'url' => "https://t.me/$getch2li"]]]
+            ])
+        ]);
+        return false; // وقف الكود هنا عشان ميردش على الأمر
+    }
+}
 
 $setch = file_get_contents("data/setch.json");
 $setchannel = file_get_contents("data/setchannel.json");
